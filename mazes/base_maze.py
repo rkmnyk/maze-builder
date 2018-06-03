@@ -1,7 +1,9 @@
 import imageio
 import logging
 import numpy as np
+
 from abc import ABC, abstractmethod
+
 
 class Maze(ABC):
 
@@ -10,6 +12,20 @@ class Maze(ABC):
     def maze(self) -> np.ndarray:
         """
         :return: the maze
+        """
+
+    @property
+    @abstractmethod
+    def entry(self):
+        """
+        :return: the entry point
+        """
+
+    @property
+    @abstractmethod
+    def exit(self):
+        """
+        :return: the exit point
         """
 
     @abstractmethod
@@ -50,6 +66,11 @@ class Maze(ABC):
         image = np.zeros((self.maze.shape[0] * sf, self.maze.shape[1] * sf, 3), np.uint8)
         for x in range(self.maze.shape[0]):
             for y in range(self.maze.shape[1]):
-                for s in range(sf):
-                    image[x * sf:x * sf + s, y * sf:y * sf + s, :] = self.maze[x, y] * 255
+                image[x * sf:x * sf + sf, y * sf:y * sf + sf, :] = self.maze[x, y] * 255
+
+        if self.entry:
+            image[self.entry[0] * sf:self.entry[0] * sf + sf, self.entry[1] * sf:self.entry[1] * sf + sf, [0, 2]] = 0
+        if self.exit:
+            image[self.exit[0] * sf:self.exit[0] * sf + sf, self.exit[1] * sf:self.exit[1] * sf + sf, [0, 2]] = 0
+
         return image

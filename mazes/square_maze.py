@@ -49,6 +49,14 @@ class SquareMaze(Maze):
     def maze(self) -> np.ndarray:
         return self.__maze
 
+    @property
+    def entry(self):
+        return self.__entry
+
+    @property
+    def exit(self):
+        return self.__exit
+
     def __new_branches(self, moves: List) -> List:
         """
 

@@ -135,7 +135,7 @@ class MainWindow:
 
         self.maze.build()
         data = self.maze.image_snapshot(self._scale_factor)
-        self._image_data = PILImage.frombytes('L', (data.shape[1], data.shape[0]), data[:, :, 0].astype('b').tostring())
+        self._image_data = PILImage.fromarray(data)
         self._image = PILIMageTk.PhotoImage(image=self._image_data)
 
         self.maze_canvas.create_image(2, 2, image=self._image, anchor=NW)
@@ -148,7 +148,7 @@ class MainWindow:
 
         while not self.maze.expand():
             data = self.maze.image_snapshot(self._scale_factor)
-            self._image_data = PILImage.frombytes('L', (data.shape[1], data.shape[0]), data[:, :, 0].astype('b').tostring())
+            self._image_data = PILImage.fromarray(data)
             self._image = PILIMageTk.PhotoImage(image=self._image_data)
             self.maze_canvas.create_image(2, 2, image=self._image, anchor=NW)
             self.master.update()
