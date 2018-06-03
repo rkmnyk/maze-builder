@@ -2,3 +2,5 @@
 *.gif
 *.png
 *.bmp
+*__pycache__
+*.idea

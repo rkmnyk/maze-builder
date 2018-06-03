@@ -1,4 +1,5 @@
 import imageio
+import logging
 import numpy as np
 from abc import ABC, abstractmethod
 
@@ -38,6 +39,7 @@ class Maze(ABC):
         :param path:            file path
         :param scale_factor:    scale factor (elements -> pixels)
         """
+        logging.info("Saving maze to {}".format(path))
         imageio.imsave(path, self.image_snapshot(scale_factor))
 
     def image_snapshot(self, sf: int=1) -> np.ndarray:
