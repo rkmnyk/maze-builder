@@ -53,7 +53,8 @@ class MainWindow:
 
         self.rate_slider_label = Label(self.options_frame, text="Growth rate")
         self.rate_slider_label.grid(row=0, column=0, sticky=W)
-        self.rate_slider = Scale(self.options_frame, from_=0.1, to=1, width=10, length=100, orient=HORIZONTAL)
+        self.rate_slider = Scale(self.options_frame, from_=0.1, to=1, width=10, length=100,
+                                 resolution=0.05, orient=HORIZONTAL)
         self.rate_slider.set(1)
         self.rate_slider.grid(row=0, column=1, columnspan=2, padx=2, pady=2)
 
@@ -76,6 +77,7 @@ class MainWindow:
         self.animate = IntVar()
         self.animate_checkbox = Checkbutton(self.options_frame, text="Animate",
                                             onvalue=1, offvalue=0, variable=self.animate)
+        self.animate_checkbox.deselect()
         self.animate_checkbox.grid(row=1, column=3, sticky=W)
 
         self.build_button = Button(self.options_frame, text="Generate Maze", command=self.generate)
@@ -94,7 +96,7 @@ class MainWindow:
 
     def save_maze(self):
         """
-        save the maze to file
+        save the maze to f-ile
         """
         self.maze.save_state_to_image(self.save_maze_location.get(), self._scale_factor)
 
@@ -121,7 +123,7 @@ class MainWindow:
 
         self.set_square_maze()
 
-        if self.animate:
+        if self.animate.get():
             self.build_and_animate()
         else:
             self.build()
