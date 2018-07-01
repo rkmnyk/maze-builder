@@ -66,7 +66,7 @@ class Maze(ABC):
         image = np.zeros((self.maze.shape[0] * sf, self.maze.shape[1] * sf, 3), np.uint8)
         for x in range(self.maze.shape[0]):
             for y in range(self.maze.shape[1]):
-                image[x * sf:x * sf + sf, y * sf:y * sf + sf, :] = self.maze[x, y] * 255
+                image[x * sf:x * sf + sf, y * sf:y * sf + sf, :] = 255 if self.maze[x, y] else 0
 
         if self.entry:
             image[self.entry[0] * sf:self.entry[0] * sf + sf, self.entry[1] * sf:self.entry[1] * sf + sf, [0, 2]] = 0

@@ -2,11 +2,11 @@ import logging
 import numpy as np
 
 from PIL import Image as PILImage
-from PIL import ImageTk as PILIMageTk
+from PIL import ImageTk as PILImageTk
 from tkinter import *
 from tkinter.ttk import Style
 
-from mazes.square_maze import SquareMaze
+from mazes.square_maze import SquareMaze, BranchingStrategy
 
 
 class MazeCanvas(Canvas):
@@ -23,8 +23,9 @@ class MainWindow:
 
     def __init__(self):
 
-        self.width = 600
-        self.height = 600
+        # todo options pane on the right, hideable, switches between panes depending on maze type, both panes resize
+        self.width = 750
+        self.height = 750
 
         self._maze_size = 200
         self._scale_factor = 3
@@ -45,7 +46,7 @@ class MainWindow:
         # init with white box and black border
         self._image_data = PILImage.frombytes('L', (self.width, self.height),
                                               (np.ones((self.width, self.height))*255).astype('b').tostring())
-        self._image = PILIMageTk.PhotoImage(image=self._image_data)
+        self._image = PILImageTk.PhotoImage(image=self._image_data)
         self.maze_canvas.create_image(0, 0, image=self._image, anchor=NW)
 
         self.options_frame = Frame(self.master)
@@ -64,15 +65,21 @@ class MainWindow:
         self.size_slider.set(100)
         self.size_slider.grid(row=1, column=1, columnspan=2, padx=2, pady=2)
 
+        self.seeds_slider_label = Label(self.options_frame, text="Number of seeds")
+        self.seeds_slider_label.grid(row=0, column=3, sticky=W)
+        self.seeds_slider = Scale(self.options_frame, from_=1, to=30, width=10, length=100, orient=HORIZONTAL)
+        self.seeds_slider.set(1)
+        self.seeds_slider.grid(row=0, column=4, columnspan=2, padx=2, pady=2)
+
         self.square_strategy_label = Label(self.options_frame, text="Branching Strategy")
-        self.square_strategy_label.grid(row=0, column=3, sticky=W)
+        self.square_strategy_label.grid(row=0, column=6, sticky=W)
         self.square_strategy = StringVar(self.master)
-        self.square_strategy.set(SquareMaze.BranchingStrategy.RANDOM.value)
+        self.square_strategy.set(BranchingStrategy.RANDOM.value)
         self.square_option = OptionMenu(self.options_frame, self.square_strategy,
-                                        SquareMaze.BranchingStrategy.RANDOM.value,
-                                        SquareMaze.BranchingStrategy.PARTIAL.value,
-                                        SquareMaze.BranchingStrategy.FULL.value)
-        self.square_option.grid(row=0, column=4, columnspan=1, padx=2, pady=2)
+                                        BranchingStrategy.RANDOM.value,
+                                        BranchingStrategy.PARTIAL.value,
+                                        BranchingStrategy.FULL.value)
+        self.square_option.grid(row=0, column=7, columnspan=1, padx=2, pady=2)
 
         self.animate = IntVar()
         self.animate_checkbox = Checkbutton(self.options_frame, text="Animate",
@@ -81,14 +88,14 @@ class MainWindow:
         self.animate_checkbox.grid(row=1, column=3, sticky=W)
 
         self.build_button = Button(self.options_frame, text="Generate Maze", command=self.generate)
-        self.build_button.grid(row=1, column=4, rowspan=1, columnspan=1)
+        self.build_button.grid(row=1, column=4,  columnspan=1)
 
-        self.save_maze_location = Entry(self.master, width=15)
+        self.save_maze_location = Entry(self.options_frame, width=15)
         self.save_maze_location.insert(0, "maze.png")
-        self.save_maze_location.grid(row=2, column=5, columnspan=2, sticky=E)
+        self.save_maze_location.grid(row=1, column=5, columnspan=2, padx=2, pady=2, sticky=E)
 
-        self.save_maze_button = Button(self.master, text="Save", command=self.save_maze)
-        self.save_maze_button.grid(row=2, column=7, columnspan=1, sticky=W)
+        self.save_maze_button = Button(self.options_frame, text="Save", command=self.save_maze)
+        self.save_maze_button.grid(row=1, column=7, columnspan=1, sticky=E)
 
         self.maze = None
         self.set_square_maze()
@@ -98,15 +105,15 @@ class MainWindow:
         """
         save the maze to f-ile
         """
-        self.maze.save_state_to_image(self.save_maze_location.get(), self._scale_factor)
+        self.maze.save_state_to_image(self.save_maze_location.get(), 5)
 
     def set_square_maze(self):
         """
         initialize the square maze based on config
         """
         self.set_square_maze_size()
-        self.maze = SquareMaze(width=self._maze_size, height=self._maze_size, rate=self.rate_slider.get(),
-                               strategy=SquareMaze.BranchingStrategy(self.square_strategy.get()))
+        self.maze = SquareMaze(width=self._maze_size, height=self._maze_size, n_trees=self.seeds_slider.get(), rate=self.rate_slider.get(),
+                               strategy=BranchingStrategy(self.square_strategy.get()))
 
     def set_square_maze_size(self):
         """
@@ -136,7 +143,7 @@ class MainWindow:
         self.maze.build()
         data = self.maze.image_snapshot(self._scale_factor)
         self._image_data = PILImage.fromarray(data)
-        self._image = PILIMageTk.PhotoImage(image=self._image_data)
+        self._image = PILImageTk.PhotoImage(image=self._image_data)
 
         self.maze_canvas.create_image(2, 2, image=self._image, anchor=NW)
         self.master.update()
@@ -149,7 +156,7 @@ class MainWindow:
         while not self.maze.expand():
             data = self.maze.image_snapshot(self._scale_factor)
             self._image_data = PILImage.fromarray(data)
-            self._image = PILIMageTk.PhotoImage(image=self._image_data)
+            self._image = PILImageTk.PhotoImage(image=self._image_data)
             self.maze_canvas.create_image(2, 2, image=self._image, anchor=NW)
             self.master.update()
 
